@@ -1,45 +1,74 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+#x=np.array([1,2,3,4,5])
+#y=np.array([5,4,7,1,7])
+
 np.random.seed(42)
 x = np.linspace(0, 2*np.pi, 50)
 y = np.sin(x)
 y2 = y + 0.1 * np.random.normal(size=x.shape)
 
 
-'''
-class TicksHandler(object):
-    def __init__(self, ax):
-        self.ax = ax
-
-    def visible(self, s, prop):
-        self.ax.tick_params(**{s:['off','on'][prop]})
-
-class LabelsHandler(object):
-    def __init__(self, ax):
-        self.ax = ax
-
-    def visible(self, s, prop):
-        self.ax.tick_params(**{'label'+s:['off','on'][prop]})
-'''
 class SpineHandler(object):
-    def __init__(self, ax):
+    def __init__(self,spine,ax):
+        self.spine = spine
         self.ax = ax
 
-    def visible(self, s, prop):
-        self.ax.spines[s].set_visible(prop)
+    def __call__(self,*args,**kwargs):
+        visible = kwargs.get('visible',None)
+        if visible in [False,True]:
+            self.visible(visible)
+
+        bounds = kwargs.get('bounds',None)
+        if bounds != None:
+            self.bounds(bounds)
+
+    def visible(self,b):
+        self.spine.set_visible(b)
+
+    def bounds(self,bounds):
+        assert(len(bounds) == 2)
+        self.spine.set_bounds(bounds[0],bounds[1])
+
+    def ticks(self,ticks,labels=None):
+        self.ax.set_yticks(ticks)
+        if labels:
+            self.ax.set_yticklabels(labels)
+
+class SpinesHandler(object):
+    def __init__(self, chart):
+        self.chart = chart
 
     def __getattr__(self,e):
-        if e == 'ticks':
-            return TicksHandler(self.ax)
-        elif e == 'labels':
-            return LabelsHandler(self.ax)
+        if e == 'left':
+            return SpineHandler(self.chart.ax_left.spines['left'],
+                                self.chart.ax_left)
+        elif e == 'right':
+            return SpineHandler(self.chart.ax_right.spines['right'],
+                                self.chart.ax_right)
+        elif e == 'top':
+            return SpineHandler(self.chart.ax_top.spines['top'],
+                                self.chart.ax_top)
+        elif e == 'bottom':
+            return SpineHandler(self.chart.ax_bottom.spines['bottom'],
+                                self.chart.ax_bottom)
 
 
 class Chart(object):
     def __init__(self,x=6,y=6):
         self.fig = plt.figure(figsize=(x,y))
-        self.ax = self.fig.subplots()
+
+        self.ax_left = self.fig.subplots()
+        self.ax_right = self.ax_left.twinx()
+
+        self.ax_top = self.ax_left.twiny()
+        self.ax_bottom = self.ax_top.twiny()
+
+        self.ax_left.yaxis.set_ticks_position('left')
+        self.ax_right.yaxis.set_ticks_position('right')
+        self.ax_top.xaxis.set_ticks_position('top')
+        self.ax_bottom.xaxis.set_ticks_position('bottom')
 
         self.kill_all()
 
@@ -47,63 +76,43 @@ class Chart(object):
         plt.show(self.ax)
 
     def kill_all(self):
-        for s in ['top','bottom','left','right']:
-            self.spine.visible(s,False)
-            self.spine.ticks.visible(s,False)
-            self.spine.labels.visible(s,False)
+        #self.spine.left(visible=False)
+
+        for axes in [self.ax_left,
+                     self.ax_right,
+                     self.ax_top,
+                     self.ax_bottom]:
+
+            params = {}
+            for k in ['left','right','top','bottom']:
+                params[k] = 'off'
+                params['label'+k] = 'off'
+            axes.tick_params(axis='both',**params)
+            for s in ['top','bottom','left','right']:
+                axes.spines[s].set_visible(False)
 
     def __getattr__(self,e):
         if e == 'spine':
-            return SpineHandler(self.ax)
+            return SpinesHandler(self)
         else:
             return None
 
-    '''
-
-    def spine_left_ticks_off(self,ax):
-        self.ax.tick_params(left='off')
-
-    def spine_left_ticks_on(self,ax):
-        self.ax.tick_params(left='on')
-
-    def spine_left_labels_off(self,ax):
-        self.ax.tick_params(labelleft='off')
-
-    def spine_left_labels_on(self,ax):
-        self.ax.tick_params(labelleft='on')
-
-    def spine_left_kill(self,ax):
-        self.spine_left_ticks_off(ax)
-        self.spine_left_labels_off(ax)
-        self.spine_left_visible(False)
-
-    def spine_left_bounds_set(self,ymin=None,ymax=None):
-        if ymin != None and ymax != None:
-            self.ax.spines['left'].set_bounds(ymin,ymax)
-        elif ymin != None:
-            _,ymax = self.ax.spines['left'].get_bounds()
-            self.ax.spines['left'].set_bounds(ymin,ymax)
-        elif ymax != None:
-            ymin,_ = self.ax.spines['left'].get_bounds()
-            self.ax.spines['left'].set_bounds(ymin,ymax)
-    '''
-
     def plot(self,*args,**kwargs):
-        self.ax.plot(*args,**kwargs)
+        self.ax_left.plot(*args,**kwargs)
+
+        self.ax_right.set_ylim(*self.ax_left.get_ylim())
+        self.ax_top.set_xlim(*self.ax_left.get_xlim())
+        self.ax_bottom.set_xlim(*self.ax_left.get_xlim())
+
 
     def scatter(self,*args,**kwargs):
-        self.ax.scatter(*args,**kwargs)
+        self.ax_left.scatter(*args,**kwargs)
 
 
 
-#x=np.array([1,2,3,4,5])
-#y=np.array([5,4,7,1,7])
 
-
+'''
 #chart = Chart()
-#chart.plot(x,y,'ok')
-#chart.spine_left_bounds_set(2,5)
-#chart.render()
 
 chart = Chart(6,4)
 
@@ -115,30 +124,38 @@ chart.plot(x, y, '--', color='#BBBBBB')
 chart.scatter(x[mask], y2[mask], c='r', s=9)
 chart.scatter(x[mask == False], y2[mask == False], c='grey', s=3)
 
-#chart.spine.visible('left',True)
-#chart.spine.visible('right',True)
-chart.spine.left(visible=True)
+#chart.spine.left(visible=True,
+#                 bounds=[-1,1])
+chart.spine.left.visible(True)
+chart.spine.left.bounds([-1,1])
+chart.spine.left.ticks([-1,0,1],
+                       ['red','green','blue'])
+
+chart.spine.right.visible(True)
+chart.spine.right.bounds([-1,1])
+chart.spine.right.ticks([-1,0.75,1])
+
+#chart.spine.left.visible(False)
 
 chart.render()
+'''
+
+
+
+
+
+
+
+
 
 '''
 
 
-ax.set_xlim((0-0.1, 2*np.pi+0.1))
-ax.set_xticks([0, np.pi, 2*np.pi])
-ax.set_xticks(x[mask],minor=True)
-ax.set_xticklabels(['0', '$\pi$', '2$\pi$'])
-ax.spines['bottom'].set_bounds(0,2*np.pi)
-ax.xaxis.set_ticks_position('bottom')
-
 
 ax.set_ylim((-1.25, 1.25))
 ax.set_yticks([-1, 0, 1])
-ax.spines['left'].set_bounds(-1, 1)
-ax.spines['right'].set_bounds(-1, 1)
 
 ax.spines['left'].set_color('#999999')
-ax.spines['right'].set_color('#999999')
 ax.tick_params(color='#999999')
 ax.yaxis.set_ticks_position('both')
 
