@@ -7,7 +7,7 @@ y = np.sin(x)
 y2 = y + 0.1 * np.random.normal(size=x.shape)
 
 
-
+'''
 class TicksHandler(object):
     def __init__(self, ax):
         self.ax = ax
@@ -21,7 +21,7 @@ class LabelsHandler(object):
 
     def visible(self, s, prop):
         self.ax.tick_params(**{'label'+s:['off','on'][prop]})
-
+'''
 class SpineHandler(object):
     def __init__(self, ax):
         self.ax = ax
@@ -115,9 +115,9 @@ chart.plot(x, y, '--', color='#BBBBBB')
 chart.scatter(x[mask], y2[mask], c='r', s=9)
 chart.scatter(x[mask == False], y2[mask == False], c='grey', s=3)
 
-chart.spine.visible('left',True)
-chart.spine.visible('right',True)
-
+#chart.spine.visible('left',True)
+#chart.spine.visible('right',True)
+chart.spine.left(visible=True)
 
 chart.render()
 
