@@ -23,9 +23,11 @@ class Telescope(object):
                              self.path+[k])
 
     def __call__(self,*args,**kwargs):
+        if self.d != '()':
+            raise TypeError('object is not callable')
         return self.callback(self.path,*args,**kwargs)
 
-
+'''
 struct = {'spine':{'left':{'visible':'()'},
                    'right':{'visible':'()'}}}
 
@@ -42,3 +44,4 @@ class Example(object):
 
 a = Example()
 print(a.spine.left.visible(False))
+'''

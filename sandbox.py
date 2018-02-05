@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import structurer as telescope
 
 #x=np.array([1,2,3,4,5])
 #y=np.array([5,4,7,1,7])
@@ -10,78 +11,98 @@ y = np.sin(x)
 y2 = y + 0.1 * np.random.normal(size=x.shape)
 
 
-class SpineHandler(object):
-    def __init__(self,spine,ax):
-        self.spine = spine
-        self.ax = ax
 
-    def __call__(self,*args,**kwargs):
-        visible = kwargs.get('visible',None)
-        if visible in [False,True]:
-            self.visible(visible)
-
-        bounds = kwargs.get('bounds',None)
-        if bounds != None:
-            self.bounds(bounds)
-
-    def visible(self,b):
-        self.spine.set_visible(b)
-
-    def bounds(self,bounds):
-        assert(len(bounds) == 2)
-        self.spine.set_bounds(bounds[0],bounds[1])
-
-    def ticks(self,ticks,labels=None):
-        self.ax.set_yticks(ticks)
-        if labels:
-            self.ax.set_yticklabels(labels)
-
-class SpinesHandler(object):
-    def __init__(self, chart):
-        self.chart = chart
-
-    def __getattr__(self,e):
-        if e == 'left':
-            return SpineHandler(self.chart.ax_left.spines['left'],
-                                self.chart.ax_left)
-        elif e == 'right':
-            return SpineHandler(self.chart.ax_right.spines['right'],
-                                self.chart.ax_right)
-        elif e == 'top':
-            return SpineHandler(self.chart.ax_top.spines['top'],
-                                self.chart.ax_top)
-        elif e == 'bottom':
-            return SpineHandler(self.chart.ax_bottom.spines['bottom'],
-                                self.chart.ax_bottom)
-
+spine_properties = {'visible':'()',
+                    'bounds':'()',
+                    'ticks':'()'}
+tree = {'plot':'()',
+        'scatter':'()',
+        'spine':{'left':spine_properties,
+                 'right':spine_properties,
+                 'top':spine_properties,
+                 'bottom':spine_properties}}
 
 class Chart(object):
     def __init__(self,x=6,y=6):
         self.fig = plt.figure(figsize=(x,y))
 
-        self.ax_left = self.fig.subplots()
-        self.ax_right = self.ax_left.twinx()
+        self.axes = {}
+        self.axes['left'] = self.fig.subplots()
+        self.axes['right'] = self.axes['left'].twinx()
+        self.axes['top'] = self.axes['left'].twiny()
+        self.axes['bottom'] = self.axes['top'].twiny()
 
-        self.ax_top = self.ax_left.twiny()
-        self.ax_bottom = self.ax_top.twiny()
+        self.axes['left'].yaxis.set_ticks_position('left')
+        self.axes['right'].yaxis.set_ticks_position('right')
+        self.axes['top'].xaxis.set_ticks_position('top')
+        self.axes['bottom'].xaxis.set_ticks_position('bottom')
 
-        self.ax_left.yaxis.set_ticks_position('left')
-        self.ax_right.yaxis.set_ticks_position('right')
-        self.ax_top.xaxis.set_ticks_position('top')
-        self.ax_bottom.xaxis.set_ticks_position('bottom')
+        self.spines_lookup = {'left':self.axes['left'].spines['left'],
+                              'right':self.axes['right'].spines['right'],
+                              'top':self.axes['top'].spines['top'],
+                              'bottom':self.axes['bottom'].spines['bottom']}
+        self.ticks_lookup = {'left':self.axes['left'].set_yticks,
+                             'right':self.axes['right'].set_yticks,
+                             'top':self.axes['top'].set_xticks,
+                             'bottom':self.axes['bottom'].set_xticks}
+        self.labels_lookup = {'left':self.axes['left'].set_yticklabels,
+                              'right':self.axes['right'].set_yticklabels,
+                              'top':self.axes['top'].set_xticklabels,
+                              'bottom':self.axes['bottom'].set_xticklabels}
+
+        self._telescope = telescope.Telescope(tree,self.handle)
 
         self.kill_all()
 
-    def render(self):
-        plt.show(self.ax)
+    def handle(self,route,*args,**kwargs):
+        print(route,args,kwargs)
+
+        if route[0] == 'spine':
+            self.handle_spine(route[1:],args,kwargs)
+
+    def handle_spine(self,route,args,kwargs):
+        assert(len(route) == 2)
+        assert(route[0] in self.spines_lookup.keys())
+
+        spine,cmd = route
+
+        if cmd == 'visible':
+            assert(args[0] in [True,False])
+            self.spines_lookup[spine].set_visible(args[0])
+        elif cmd == 'bounds':
+            assert(len(args[0]) == 2)
+            self.spines_lookup[spine].set_bounds(*args[0])
+        elif cmd == 'ticks':
+            assert(type(args[0]) == list)
+            self.ticks_lookup[spine](args[0])
+            self.axes[spine].tick_params(**{spine:'on'})
+
+            labels = kwargs.get('labels',False)
+            if labels != False:
+                if labels == 'auto':
+                    self.labels_lookup[spine](args[0])
+                else:
+                    assert(type(labels) == list)
+                    self.labels_lookup[spine](labels)
+
+                self.axes[spine].tick_params(**{'label'+spine:'on'})
+
+            leave_bounds = kwargs.get('leavebounds',False)
+            if leave_bounds != True:
+                self.spines_lookup[spine].set_bounds(min(args[0]),max(args[0]))
+
+
+
+
+
+    def __getattr__(self,k):
+        return getattr(self._telescope,k)
 
     def kill_all(self):
-        #self.spine.left(visible=False)
-
-        for axes in [self.ax_left,
-                     self.ax_right,
-                     self.ax_top,
-                     self.ax_bottom]:
+        for axes in [self.axes['left'],
+                     self.axes['right'],
+                     self.axes['top'],
+                     self.axes['bottom']]:
 
             params = {}
             for k in ['left','right','top','bottom']:
@@ -91,22 +112,50 @@ class Chart(object):
             for s in ['top','bottom','left','right']:
                 axes.spines[s].set_visible(False)
 
-    def __getattr__(self,e):
-        if e == 'spine':
-            return SpinesHandler(self)
-        else:
-            return None
+    def sync_scales(self):
+        self.axes['right'].set_ylim(*self.axes['left'].get_ylim())
+        self.axes['top'].set_xlim(*self.axes['left'].get_xlim())
+        self.axes['bottom'].set_xlim(*self.axes['left'].get_xlim())
 
     def plot(self,*args,**kwargs):
-        self.ax_left.plot(*args,**kwargs)
-
-        self.ax_right.set_ylim(*self.ax_left.get_ylim())
-        self.ax_top.set_xlim(*self.ax_left.get_xlim())
-        self.ax_bottom.set_xlim(*self.ax_left.get_xlim())
-
+        self.axes['left'].plot(*args,**kwargs)
+        self.sync_scales()
 
     def scatter(self,*args,**kwargs):
-        self.ax_left.scatter(*args,**kwargs)
+        self.axes['left'].scatter(*args,**kwargs)
+        self.sync_scales()
+
+    def render(self):
+        plt.show(self.axes['left'])
+
+
+
+
+chart = Chart(6,4)
+
+mask = np.abs(y-y2) > 0.18
+chart.plot(x, y, '--', color='#BBBBBB')
+
+chart.scatter(x[mask], y2[mask], c='r', s=9)
+chart.scatter(x[mask == False], y2[mask == False], c='grey', s=3)
+
+
+
+chart.spine.right.visible(True)
+chart.spine.left.visible(True)
+chart.spine.right.bounds([-1,1])
+chart.spine.right.ticks([-1,0.75,1],
+                        labels='auto')
+chart.spine.left.ticks([-1,-0.75,0.5],
+                        labels=['red','green','blue'])
+
+chart.render()
+
+
+
+
+
+
 
 
 
