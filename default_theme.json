@@ -1,0 +1,23 @@
+{
+    "background": {
+        "plot": {
+            "color": "#BBBBBB"
+        },
+        "scatter": {
+            "color": "grey",
+            "s": 3
+        },
+        "spines": {
+            "color": "#999999"
+        },
+        "ticks": {
+            "color": "#999999"
+        }
+    },
+    "highlight": {
+        "scatter": {
+            "c": "r",
+            "s": 9
+        }
+    }
+}

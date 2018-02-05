@@ -81,9 +81,10 @@ class Chart(object):
             self.spines_lookup[spine].set_bounds(*args[0])
         elif cmd == 'ticks':
             self.handle_spine_ticks(spine,cmd,args,kwargs)
+        elif cmd == 'ticks_minor':
+            self.handle_spine_ticks_minor(spine,cmd,args,kwargs)
 
     def handle_spine_ticks(self,spine,cmd,args,kwargs):
-        assert(type(args[0]) == list)
         self.ticks_lookup[spine](args[0])
         self.axes[spine].tick_params(**{spine:'on'})
 
@@ -99,6 +100,9 @@ class Chart(object):
         leave_bounds = kwargs.get('leavebounds',False)
         if leave_bounds != True:
             self.spines_lookup[spine].set_bounds(min(args[0]),max(args[0]))
+
+    def handle_spine_ticks_minor(self,spine,cmd,args,kwargs):
+        self.ticks_lookup[spine](args[0],minor=True)
 
     def handle_ylim(self,route,args,kwargs):
         self.axes['left'].set_ylim(*args[0])
@@ -158,7 +162,7 @@ chart.spine.left.ticks([-1,0,1])
 chart.spine.right.visible(True)
 chart.spine.right.ticks([-1,0,1])
 
-chart.spine.bottom.visible(True)
+#chart.spine.bottom.visible(True)
 chart.spine.bottom.ticks([0, np.pi, 2*np.pi],
                          labels=['0', '$\pi$', '2$\pi$'])
 chart.spine.bottom.ticks_minor(x[mask])
