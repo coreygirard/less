@@ -15,7 +15,7 @@ class Telescope(object):
             raise Exception('something')
 
         if k not in self.d.keys():
-            raise AttributeError()
+            raise AttributeError(k)
 
         if k in self.d.keys():
             return Telescope(self.d[k],

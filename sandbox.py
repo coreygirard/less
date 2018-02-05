@@ -10,13 +10,14 @@ x = np.linspace(0, 2*np.pi, 50)
 y = np.sin(x)
 y2 = y + 0.1 * np.random.normal(size=x.shape)
 
-
-
 spine_properties = {'visible':'()',
                     'bounds':'()',
-                    'ticks':'()'}
+                    'ticks':'()',
+                    'ticks_minor':'()'}
 tree = {'plot':'()',
         'scatter':'()',
+        'xlim':'()',
+        'ylim':'()',
         'spine':{'left':spine_properties,
                  'right':spine_properties,
                  'top':spine_properties,
@@ -57,8 +58,14 @@ class Chart(object):
     def handle(self,route,*args,**kwargs):
         print(route,args,kwargs)
 
-        if route[0] == 'spine':
-            self.handle_spine(route[1:],args,kwargs)
+        head,tail = route[0],route[1:]
+
+        if head == 'spine':
+            self.handle_spine(tail,args,kwargs)
+        elif head == 'xlim':
+            self.handle_xlim(tail,args,kwargs)
+        elif head == 'ylim':
+            self.handle_ylim(tail,args,kwargs)
 
     def handle_spine(self,route,args,kwargs):
         assert(len(route) == 2)
@@ -73,27 +80,33 @@ class Chart(object):
             assert(len(args[0]) == 2)
             self.spines_lookup[spine].set_bounds(*args[0])
         elif cmd == 'ticks':
-            assert(type(args[0]) == list)
-            self.ticks_lookup[spine](args[0])
-            self.axes[spine].tick_params(**{spine:'on'})
+            self.handle_spine_ticks(spine,cmd,args,kwargs)
 
-            labels = kwargs.get('labels',False)
-            if labels != False:
-                if labels == 'auto':
-                    self.labels_lookup[spine](args[0])
-                else:
-                    assert(type(labels) == list)
-                    self.labels_lookup[spine](labels)
+    def handle_spine_ticks(self,spine,cmd,args,kwargs):
+        assert(type(args[0]) == list)
+        self.ticks_lookup[spine](args[0])
+        self.axes[spine].tick_params(**{spine:'on'})
 
-                self.axes[spine].tick_params(**{'label'+spine:'on'})
+        labels = kwargs.get('labels',False)
+        if labels == False:
+            self.labels_lookup[spine](args[0])
+        else:
+            assert(type(labels) == list)
+            self.labels_lookup[spine](labels)
 
-            leave_bounds = kwargs.get('leavebounds',False)
-            if leave_bounds != True:
-                self.spines_lookup[spine].set_bounds(min(args[0]),max(args[0]))
+        self.axes[spine].tick_params(**{'label'+spine:'on'})
 
+        leave_bounds = kwargs.get('leavebounds',False)
+        if leave_bounds != True:
+            self.spines_lookup[spine].set_bounds(min(args[0]),max(args[0]))
 
+    def handle_ylim(self,route,args,kwargs):
+        self.axes['left'].set_ylim(*args[0])
+        self.sync_scales()
 
-
+    def handle_xlim(self,route,args,kwargs):
+        self.axes['left'].set_xlim(*args[0])
+        self.sync_scales()
 
     def __getattr__(self,k):
         return getattr(self._telescope,k)
@@ -139,56 +152,21 @@ chart.plot(x, y, '--', color='#BBBBBB')
 chart.scatter(x[mask], y2[mask], c='r', s=9)
 chart.scatter(x[mask == False], y2[mask == False], c='grey', s=3)
 
-
+chart.spine.left.visible(True)
+chart.spine.left.ticks([-1,0,1])
 
 chart.spine.right.visible(True)
-chart.spine.left.visible(True)
-chart.spine.right.bounds([-1,1])
-chart.spine.right.ticks([-1,0.75,1],
-                        labels='auto')
-chart.spine.left.ticks([-1,-0.75,0.5],
-                        labels=['red','green','blue'])
+chart.spine.right.ticks([-1,0,1])
+
+chart.spine.bottom.visible(True)
+chart.spine.bottom.ticks([0, np.pi, 2*np.pi],
+                         labels=['0', '$\pi$', '2$\pi$'])
+chart.spine.bottom.ticks_minor(x[mask])
+
+chart.xlim((-0.1, 2*np.pi+0.1))
+chart.ylim((-1.25,1.25))
 
 chart.render()
-
-
-
-
-
-
-
-
-
-
-'''
-#chart = Chart()
-
-chart = Chart(6,4)
-
-
-
-mask = np.abs(y-y2) > 0.18
-chart.plot(x, y, '--', color='#BBBBBB')
-
-chart.scatter(x[mask], y2[mask], c='r', s=9)
-chart.scatter(x[mask == False], y2[mask == False], c='grey', s=3)
-
-#chart.spine.left(visible=True,
-#                 bounds=[-1,1])
-chart.spine.left.visible(True)
-chart.spine.left.bounds([-1,1])
-chart.spine.left.ticks([-1,0,1],
-                       ['red','green','blue'])
-
-chart.spine.right.visible(True)
-chart.spine.right.bounds([-1,1])
-chart.spine.right.ticks([-1,0.75,1])
-
-#chart.spine.left.visible(False)
-
-chart.render()
-'''
-
 
 
 
