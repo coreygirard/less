@@ -8,8 +8,8 @@ import structurer as telescope
 
 spine_properties = {'visible':'()',
                     'bounds':'()',
-                    'ticks':'()',
-                    'ticks_minor':'()'}
+                    'ticks':{'major':'()',
+                             'minor':'()'}}
 tree = {'plot':'()',
         'scatter':'()',
         'xlim':'()',
@@ -85,20 +85,20 @@ class Chart(object):
             self.handle_ylim(tail,args,kwargs)
 
     def handle_spine(self,route,args,kwargs):
-        assert(len(route) == 2)
+        #assert(len(route) == 2)
         assert(route[0] in self.spines_lookup.keys())
 
-        spine,cmd = route
+        spine,cmd = route[0],route[1:]
 
-        if cmd == 'visible':
+        if cmd == ['visible']:
             assert(args[0] in [True,False])
             self.spines_lookup[spine].set_visible(args[0])
-        elif cmd == 'bounds':
+        elif cmd == ['bounds']:
             assert(len(args[0]) == 2)
             self.spines_lookup[spine].set_bounds(*args[0])
-        elif cmd == 'ticks':
+        elif cmd == ['ticks','major']:
             self.handle_spine_ticks(spine,cmd,args,kwargs)
-        elif cmd == 'ticks_minor':
+        elif cmd == ['ticks','minor']:
             self.handle_spine_ticks_minor(spine,cmd,args,kwargs)
 
     def handle_spine_ticks(self,spine,cmd,args,kwargs):
