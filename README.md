@@ -55,31 +55,37 @@ chart.render()
 
 ![img](http://i.imgur.com/On5uIHs.png)
 
-Now obviously the second graph isn't very informative as it is. No axes, no labels, no color. But the philosophy of **_less_** is that every element in a graph should be there for a specific reason. To that end, its design requires you to add every single element by hand. Let's see a usable graph made with **_less_**:
+Now obviously the second graph isn't very informative as is. No axes, no labels, no color. But the philosophy of **_less_** is that every element in a graph should be there for a specific reason. To that end, its design requires you to add every single element by hand. Let's see a usable graph made with **_less_**:
 
 ```python
-chart = less.Chart(9,6)
+# create chart
+chart = less.Chart(9,6) # args set size
 
-chart.plot(x, y)
+# draw data elements
+chart.plot(x, y) # defaults to dashed line
+chart.scatter(typical_x, typical_y, style='highlight') # color
+chart.scatter(outlier_x, outlier_y, style='background') # grey
 
-chart.scatter(typical_x, typical_y, style='highlight')
-chart.scatter(outlier_x, outlier_y, style='background')
-
+# creating and styling left axis
 chart.spine.left.visible(True)
 chart.spine.left.ticks.major([-1,0,1])
 chart.spine.left.ticks.minor(y2[mask])
 
+# creating and styling right axis
 chart.spine.right.visible(True)
 chart.spine.right.ticks.major([-1,0,1])
 chart.spine.right.ticks.minor(y2[mask])
 
+# creating ticks on bottom axis
 chart.spine.bottom.ticks.major([0, np.pi, 2*np.pi],
                                labels=['0', '$\pi$', '2$\pi$'])
 chart.spine.bottom.ticks.minor(x[mask])
 
+# setting extent of chart area
 chart.xlim((-0.1, 2*np.pi+0.1))
 chart.ylim((-1.25,1.25))
 
+# similar to plt.show()
 chart.render()
 ```
 
