@@ -9,7 +9,7 @@ The beautiful graphing library
 - Easy [minimal](https://www.amazon.com/Storytelling-Data-Visualization-Business-Professionals/dp/1119002257/) plots without a lot of code required to turn various default ~~chartjunk~~ elements off
 - A slightly more intuitive / uniform interface to the various elements. I've only got so much time, and I'd rather not spend it in the docs seeing if I should use `.set_xlim()` or `.set_bounds()`, `.tick_params` or `.set_ticks_position()`.
 
-*less* is my attempt to address both of those personal pain points. Let's look at an example of how things work out of the box, **Matplotlib** vs * **less** *. First, we'll create some data points:
+*less* is my attempt to address both of those personal pain points. Let's look at an example of how things work out of the box, **Matplotlib** vs **_less_**. First, we'll create some data points:
 
 ```python
 np.random.seed(42)
@@ -40,7 +40,7 @@ plt.show()
 
 ![img](http://i.imgur.com/TeVy7LQ.png)
 
-And plotting it with * **less** *'s default settings:
+And plotting it with **_less_**'s default settings:
 
 ```python
 chart = less.Chart(9,6)
@@ -55,7 +55,7 @@ chart.render()
 
 ![img](http://i.imgur.com/On5uIHs.png)
 
-Now obviously the second graph isn't very informative as it is. No axes, no labels, no color. But the philosophy of * **less** * is that every element in a graph should be there for a specific reason. To that end, its design requires you to add every single element by hand. Let's see a usable graph made with * **less** *:
+Now obviously the second graph isn't very informative as it is. No axes, no labels, no color. But the philosophy of **_less_** is that every element in a graph should be there for a specific reason. To that end, its design requires you to add every single element by hand. Let's see a usable graph made with **_less_**:
 
 ```python
 chart = less.Chart(9,6)
@@ -85,7 +85,7 @@ chart.render()
 
 ![img](https://i.imgur.com/vTSDmLh.png)
 
-- We specify some of the points to be highlighted, and * **less** * uses its default color schemes to draw attention to only those points.
+- We specify some of the points to be highlighted, and **_less_** uses its default color schemes to draw attention to only those points.
 - Scatter plot data points are by default drawn smaller than **Matplotlib**'s defaults, for a cleaner style.
 - We manually make the left and right axes visible. Everything else stays undrawn by default.
 - Setting our tick locations automatically limits the axis to being drawn only between those locations.
