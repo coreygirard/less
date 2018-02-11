@@ -1,7 +1,8 @@
 {
     "background": {
         "plot": {
-            "color": "#BBBBBB"
+            "color": "#BBBBBB",
+            "linestyle": "--"
         },
         "scatter": {
             "color": "grey",

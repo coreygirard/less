@@ -69,21 +69,21 @@ chart.scatter(outlier_x, outlier_y, style='background') # grey
 # creating and styling left axis
 chart.spine.left.visible(True)
 chart.spine.left.ticks.major([-1,0,1])
-chart.spine.left.ticks.minor(y2[mask])
+chart.spine.left.ticks.minor(outlier_y)
 
 # creating and styling right axis
 chart.spine.right.visible(True)
 chart.spine.right.ticks.major([-1,0,1])
-chart.spine.right.ticks.minor(y2[mask])
+chart.spine.right.ticks.minor(outlier_y)
 
 # creating ticks on bottom axis
 chart.spine.bottom.ticks.major([0, np.pi, 2*np.pi],
                                labels=['0', '$\pi$', '2$\pi$'])
-chart.spine.bottom.ticks.minor(x[mask])
+chart.spine.bottom.ticks.minor(outlier_x)
 
 # setting extent of chart area
-chart.xlim((-0.1, 2*np.pi+0.1))
-chart.ylim((-1.25,1.25))
+chart.xlim(-0.1, 2*np.pi+0.1)
+chart.ylim(-1.25,1.25)
 
 # similar to plt.show()
 chart.render()
