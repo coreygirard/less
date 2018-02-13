@@ -98,3 +98,8 @@ chart.render()
 - When we're drawing the bottom ticks, we specify an optional `labels` argument.
 
 Every visible element is there as a conscious choice, and I would argue the end result is both more beautiful and more informative as a result.
+
+## todo
+
+- [ ] Have easy settings (themes?) for scaling for projectors, Jupyter, etc
+- [ ] Support drawing text in the middle of lines
