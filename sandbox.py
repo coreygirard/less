@@ -1,212 +1,64 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import structurer as telescope
+import sys
+sys.path.append("/Users/coreygirard/Documents/GitHub/telescope")
+import telescope
 
-#x=np.array([1,2,3,4,5])
-#y=np.array([5,4,7,1,7])
 
-np.random.seed(42)
-x = np.linspace(0, 2*np.pi, 50)
-y = np.sin(x)
-y2 = y + 0.1 * np.random.normal(size=x.shape)
+def get_via_x(x, y, xi):
+    if not type(xi) == list:
+        xi = [xi]
 
-spine_properties = {'visible':'()',
-                    'bounds':'()',
-                    'ticks':'()',
-                    'ticks_minor':'()'}
-tree = {'plot':'()',
-        'scatter':'()',
-        'xlim':'()',
-        'ylim':'()',
-        'spine':{'left':spine_properties,
-                 'right':spine_properties,
-                 'top':spine_properties,
-                 'bottom':spine_properties}}
+    temp = []
+    for a, b, c, d in zip(x, y, x[1:], y[1:]):
+        if len(xi) == 0:
+            break
 
-class Chart(object):
-    def __init__(self,x=6,y=6):
-        self.fig = plt.figure(figsize=(x,y))
+        if len(xi) > 0 and a == xi[0]:
+            temp.append(((a, b), (a, b), xi.pop(0)))
 
-        self.axes = {}
-        self.axes['left'] = self.fig.subplots()
-        self.axes['right'] = self.axes['left'].twinx()
-        self.axes['top'] = self.axes['left'].twiny()
-        self.axes['bottom'] = self.axes['top'].twiny()
+        if len(xi) > 0 and ((a < xi[0]) != (c < xi[0])):
+            if a < c:
+                temp.append(((a, b), (c, d), xi.pop(0)))
+                continue
+            elif c < a:
+                temp.append(((c, d), (a, b), xi.pop(0)))
+                continue
 
-        self.axes['left'].yaxis.set_ticks_position('left')
-        self.axes['right'].yaxis.set_ticks_position('right')
-        self.axes['top'].xaxis.set_ticks_position('top')
-        self.axes['bottom'].xaxis.set_ticks_position('bottom')
+    print(temp)
 
-        self.spines_lookup = {'left':self.axes['left'].spines['left'],
-                              'right':self.axes['right'].spines['right'],
-                              'top':self.axes['top'].spines['top'],
-                              'bottom':self.axes['bottom'].spines['bottom']}
-        self.ticks_lookup = {'left':self.axes['left'].set_yticks,
-                             'right':self.axes['right'].set_yticks,
-                             'top':self.axes['top'].set_xticks,
-                             'bottom':self.axes['bottom'].set_xticks}
-        self.labels_lookup = {'left':self.axes['left'].set_yticklabels,
-                              'right':self.axes['right'].set_yticklabels,
-                              'top':self.axes['top'].set_xticklabels,
-                              'bottom':self.axes['bottom'].set_xticklabels}
+    results = []
+    for (a, b), (c, d), e in temp:
+        if a == e:
+            results.append((e, b))
+            continue
 
-        self._telescope = telescope.Telescope(tree,self.handle)
+        slope = (d-b)/(c-a)
+        new_y = b + slope*(e-a)
+        results.append((e, new_y))
 
-        self.kill_all()
+    return results
 
-    def handle(self,route,*args,**kwargs):
-        print(route,args,kwargs)
+def get_via_t(x, y, t):
+    assert(len(x) == len(y))
+    assert(t >= 0 and t <= 1)
 
-        head,tail = route[0],route[1:]
-
-        if head == 'spine':
-            self.handle_spine(tail,args,kwargs)
-        elif head == 'xlim':
-            self.handle_xlim(tail,args,kwargs)
-        elif head == 'ylim':
-            self.handle_ylim(tail,args,kwargs)
-
-    def handle_spine(self,route,args,kwargs):
-        assert(len(route) == 2)
-        assert(route[0] in self.spines_lookup.keys())
-
-        spine,cmd = route
-
-        if cmd == 'visible':
-            assert(args[0] in [True,False])
-            self.spines_lookup[spine].set_visible(args[0])
-        elif cmd == 'bounds':
-            assert(len(args[0]) == 2)
-            self.spines_lookup[spine].set_bounds(*args[0])
-        elif cmd == 'ticks':
-            self.handle_spine_ticks(spine,cmd,args,kwargs)
-        elif cmd == 'ticks_minor':
-            self.handle_spine_ticks_minor(spine,cmd,args,kwargs)
-
-    def handle_spine_ticks(self,spine,cmd,args,kwargs):
-        self.ticks_lookup[spine](args[0])
-        self.axes[spine].tick_params(**{spine:'on'})
-
-        labels = kwargs.get('labels',False)
-        if labels == False:
-            self.labels_lookup[spine](args[0])
-        else:
-            assert(type(labels) == list)
-            self.labels_lookup[spine](labels)
-
-        self.axes[spine].tick_params(**{'label'+spine:'on'})
-
-        leave_bounds = kwargs.get('leavebounds',False)
-        if leave_bounds != True:
-            self.spines_lookup[spine].set_bounds(min(args[0]),max(args[0]))
-
-    def handle_spine_ticks_minor(self,spine,cmd,args,kwargs):
-        self.ticks_lookup[spine](args[0],minor=True)
-
-    def handle_ylim(self,route,args,kwargs):
-        self.axes['left'].set_ylim(*args[0])
-        self.sync_scales()
-
-    def handle_xlim(self,route,args,kwargs):
-        self.axes['left'].set_xlim(*args[0])
-        self.sync_scales()
-
-    def __getattr__(self,k):
-        return getattr(self._telescope,k)
-
-    def kill_all(self):
-        for axes in [self.axes['left'],
-                     self.axes['right'],
-                     self.axes['top'],
-                     self.axes['bottom']]:
-
-            params = {}
-            for k in ['left','right','top','bottom']:
-                params[k] = 'off'
-                params['label'+k] = 'off'
-            axes.tick_params(axis='both',**params)
-            for s in ['top','bottom','left','right']:
-                axes.spines[s].set_visible(False)
-
-    def sync_scales(self):
-        self.axes['right'].set_ylim(*self.axes['left'].get_ylim())
-        self.axes['top'].set_xlim(*self.axes['left'].get_xlim())
-        self.axes['bottom'].set_xlim(*self.axes['left'].get_xlim())
-
-    def plot(self,*args,**kwargs):
-        self.axes['left'].plot(*args,**kwargs)
-        self.sync_scales()
-
-    def scatter(self,*args,**kwargs):
-        self.axes['left'].scatter(*args,**kwargs)
-        self.sync_scales()
-
-    def render(self):
-        plt.show(self.axes['left'])
+    t *= len(x) - 1
+    if int(t) == t:
+        t = int(t)
+        return x[t], y[t]
+    else:
+        below, above = int(t), int(t) + 1
+        w_below, w_above = t-below, above-t
+        return (x[below]*w_below + x[above]*w_above,
+                y[below]*w_below + y[above]*w_above)
 
 
 
+#x = [1, 2, 3, -1]
+#y = [3, 0, 5, -2]
+#print(get_via_x(x, y, [1, 1.5, 0.5]))
 
-chart = Chart(6,4)
-
-mask = np.abs(y-y2) > 0.18
-chart.plot(x, y, '--', color='#BBBBBB')
-
-chart.scatter(x[mask], y2[mask], c='r', s=9)
-chart.scatter(x[mask == False], y2[mask == False], c='grey', s=3)
-
-chart.spine.left.visible(True)
-chart.spine.left.ticks([-1,0,1])
-
-chart.spine.right.visible(True)
-chart.spine.right.ticks([-1,0,1])
-
-#chart.spine.bottom.visible(True)
-chart.spine.bottom.ticks([0, np.pi, 2*np.pi],
-                         labels=['0', '$\pi$', '2$\pi$'])
-chart.spine.bottom.ticks_minor(x[mask])
-
-chart.xlim((-0.1, 2*np.pi+0.1))
-chart.ylim((-1.25,1.25))
-
-chart.render()
-
-
-
-
-
-
-
-
-'''
-
-
-
-ax.set_ylim((-1.25, 1.25))
-ax.set_yticks([-1, 0, 1])
-
-ax.spines['left'].set_color('#999999')
-ax.tick_params(color='#999999')
-ax.yaxis.set_ticks_position('both')
-
-ax.tick_params(labeltop=False, labelright=True)
-
-plt.show()
-'''
-
-
-
-
-'''
-plt.tick_params(axis='both',
-                which='both',
-                bottom='on',
-                top='off',
-                labelbottom='on',
-                left='off',
-                right='off',
-                labelleft='on',
-                color=,
-                length=)
-'''
+x = [1, 2, 3]
+y = [0, 5, 2.5]
+print(get_via_x(x, y, [1.5, 2.0, 2.5]))

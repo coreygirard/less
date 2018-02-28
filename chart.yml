@@ -11,7 +11,7 @@ chart
     .scatter()
     .xlim()
     .ylim()
-    .line
+    .line[]
         .label()
     .title()
     .spine
