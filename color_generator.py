@@ -259,7 +259,7 @@ data = {'red':{"50": "#ffebee",
 from pprint import pprint
 import json
 
-with open('colors.json','w') as f:
-    json.dump(data,f,indent=4)
+#with open('colors.json','w') as f:
+#    json.dump(data,f,indent=4)
 
 #pprint(data)

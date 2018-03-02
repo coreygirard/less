@@ -7,6 +7,8 @@ import sys
 sys.path.append("/Users/coreygirard/Documents/GitHub/telescope")
 import telescope
 
+import handle_axes as axes
+
 
 class Theme(object):
     def __init__(self, data):
