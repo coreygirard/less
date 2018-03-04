@@ -7,22 +7,32 @@ class Axes(draw.Draw):
 
         self.fig = plt.figure(figsize=(x,y))
 
+        self.create_axes()
+        self.init_ticks_position()
+        self.init_label_position()
+        self.init_lookup()
+        self.kill_chartjunk()
+
+    def create_axes(self):
         self.axes = {}
         self.axes['left'] = self.fig.subplots()
         self.axes['right'] = self.axes['left'].twinx()
         self.axes['top'] = self.axes['left'].twiny()
         self.axes['bottom'] = self.axes['top'].twiny()
 
+    def init_ticks_position(self):
         self.axes['left'].yaxis.set_ticks_position('left')
         self.axes['right'].yaxis.set_ticks_position('right')
         self.axes['top'].xaxis.set_ticks_position('top')
         self.axes['bottom'].xaxis.set_ticks_position('bottom')
 
+    def init_label_position(self):
         self.axes['left'].yaxis.set_label_position('left')
         self.axes['right'].yaxis.set_label_position('right')
         self.axes['top'].xaxis.set_label_position('top')
         self.axes['bottom'].xaxis.set_label_position('bottom')
 
+    def init_lookup(self):
         self.spines_lookup = {'left':self.axes['left'].spines['left'],
                               'right':self.axes['right'].spines['right'],
                               'top':self.axes['top'].spines['top'],
@@ -36,7 +46,6 @@ class Axes(draw.Draw):
                               'top':self.axes['top'].set_xticklabels,
                               'bottom':self.axes['bottom'].set_xticklabels}
 
-        self.kill_all()
 
     def sync_scales(self):
         self.axes['right'].set_ylim(*self.axes['left'].get_ylim())
@@ -53,7 +62,7 @@ class Axes(draw.Draw):
         elif spine == 'bottom':
             self.axes['bottom'].set_xlabel(args[0])
 
-    def kill_all(self):
+    def kill_chartjunk(self):
         for axes in [self.axes['left'],
                      self.axes['right'],
                      self.axes['top'],
@@ -67,11 +76,6 @@ class Axes(draw.Draw):
             for s in ['top','bottom','left','right']:
                 axes.spines[s].set_visible(False)
 
-
-
-
-
-
     def handle(self,route,*args,**kwargs):
         head,tail = route[0],route[1:]
 
@@ -84,7 +88,7 @@ class Axes(draw.Draw):
         elif head == 'line':
             self.handle_line(tail,args,kwargs)
         elif head == 'title()':
-            self.axes['left'].set_title(args[0])
+            self.axes['left'].set_title(*args, **kwargs)
         else:
             print('unknown command:',route,args,kwargs)
 
@@ -101,17 +105,26 @@ class Axes(draw.Draw):
             assert(len(args[0]) == 2)
             self.spines_lookup[spine].set_bounds(*args[0])
         elif cmd == ['ticks','major()']:
-            self.handle_spine_ticks(spine, cmd, args, kwargs)
+            self.handle_spine_ticks_major(spine, cmd, args, kwargs)
         elif cmd == ['ticks','minor()']:
             self.handle_spine_ticks_minor(spine, cmd, args, kwargs)
-        elif cmd == ['label()']:
-            self.set_axis_label(spine, args, kwargs)
+        #elif cmd == ['label()']:
+        #    self.set_axis_label(spine, args, kwargs)
 
-    def handle_spine_ticks(self, spine, cmd, args, kwargs):
-        self.ticks_lookup[spine](args[0])
-        self.axes[spine].tick_params(**{spine:'on'})
-
+    def handle_spine_ticks_major(self, spine, cmd, args, kwargs):
         labels = kwargs.get('labels',False)
+        labelsize = kwargs.get('fontsize', None)
+        try:
+            n = args[0]
+        except:
+            n = list(range(len(labels)))
+
+        self.ticks_lookup[spine](n)
+        params = {spine:'on'}
+        if labelsize:
+            params['labelsize'] = labelsize
+        self.axes[spine].tick_params(**params)
+
         if labels == False:
             self.labels_lookup[spine](args[0])
         else:
@@ -120,9 +133,11 @@ class Axes(draw.Draw):
 
         self.axes[spine].tick_params(**{'label' + spine:'on'})
 
+
+
         leave_bounds = kwargs.get('leavebounds', False)
         if leave_bounds != True:
-            self.spines_lookup[spine].set_bounds(min(args[0]), max(args[0]))
+            self.spines_lookup[spine].set_bounds(min(n), max(n))
 
     def handle_spine_ticks_minor(self, spine, cmd, args, kwargs):
         self.ticks_lookup[spine](args[0], minor=True)
@@ -135,6 +150,7 @@ class Axes(draw.Draw):
         self.axes['left'].set_xlim(*args)
         self.sync_scales()
 
+    '''
     def handle_line(self,route,args,kwargs):
         if route == ['label()']:
             self.handle_line_label(args,kwargs)
@@ -147,11 +163,7 @@ class Axes(draw.Draw):
                                    kwargs['label'],
                                    verticalalignment='center',
                                    color=color)
-
-    #def plot(self,*args,**kwargs):
-    #    line = self.axes['left'].plot(*args, **kwargs)
-    #    self.sync_scales()
-    #    return line
+    '''
 
     def render(self):
         plt.show(self.axes['left'])

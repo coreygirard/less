@@ -1,36 +1,40 @@
 import numpy as np
+import handle_elements as elements
 
+
+def merge_themes(theme, kwargs):
+    theme = {**theme, **kwargs}
+    return theme
 
 class Draw(object):
+    def get_axes(self):
+        return self.parent.axes.axes['left']
+
     def plot(self, *args, **kwargs):
         assert(len(args) == 0)
 
-        if 'style' not in kwargs: kwargs['style'] = 'background'
+        style = kwargs.pop('style', 'background')
+        theme = self.parent.get_current_theme(style, 'plot')
 
-        theme = self.parent.get_current_theme()[kwargs['style']]['plot']
+        theme = merge_themes(theme, kwargs)
 
-        for k in ['color','linestyle']:
-            if k in kwargs:
-                theme[k] = kwargs[k]
+        name = theme.pop('name', None)
+        x = theme.pop('x', None)
+        y = theme.pop('y', None)
 
-        name = kwargs.pop('name', None)
-        axes = self.parent.axes.axes['left']
-        line = axes.plot(kwargs['x'], kwargs['y'], **theme)
+        line = self.get_axes().plot(x, y, **theme)
         self.sync_scales()
 
         if name:
-            if 'line' not in self.parent.stored.keys():
-                self.parent.stored['line'] = {}
-            if name not in self.parent.stored['line'].keys():
-                self.parent.stored['line'][name] = []
-            self.parent.stored['line'][name].append(line[0])
+            if name not in self.parent.stored.keys():
+                self.parent.stored[name] = elements.Iterator()
+            self.parent.stored[name].add(elements.LineObject(line[0]))
 
     def scatter(self, x, y, **kwargs):
         style = kwargs.get('style', 'background')
 
-        theme = self.parent.get_current_theme()[style]['scatter']
-        axes = self.parent.axes.axes['left']
-        axes.scatter(x,y,**theme)
+        theme = self.parent.get_current_theme(style, 'scatter')
+        self.get_axes().scatter(x,y,**theme)
         self.sync_scales()
 
     def jitter(self, *args, **kwargs):
@@ -48,3 +52,37 @@ class Draw(object):
             y_ = y
 
         self.scatter(x_, y_, **kwargs)
+
+    def vbar(self, *args, **kwargs):
+        x = kwargs.pop('x')
+        y = kwargs.pop('y')
+
+        if any(map(lambda x: type(x) == str, x)):
+            x = list(range(len(x)))
+
+        name = kwargs.pop('name', None)
+
+        bar = self.get_axes().bar(x, y)
+        self.sync_scales()
+
+        if name:
+            if name not in self.parent.stored.keys():
+                self.parent.stored[name] = elements.Iterator()
+            self.parent.stored[name].add(elements.VerticalBarChartObject(bar))
+
+    def hbar(self, *args, **kwargs):
+        y = kwargs.pop('y')
+        x = kwargs.pop('x')
+
+        if True: #any(map(lambda x: type(x) == str, x)):
+            y = list(reversed(range(len(y))))
+
+        name = kwargs.pop('name', None)
+
+        bar = self.get_axes().barh(y, x)
+        self.sync_scales()
+
+        if name:
+            if name not in self.parent.stored.keys():
+                self.parent.stored[name] = elements.Iterator()
+            self.parent.stored[name].add(elements.HorizontalBarChartObject(bar))

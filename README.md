@@ -101,5 +101,15 @@ Every visible element is there as a conscious choice, and I would argue the end 
 
 ## todo
 
+- [ ] Large pretty text
+- [ ] Slopegraph
+- [ ] Waterfall
+- [ ] Vertical bar
+- [ ] Horizontal bar
+- [ ] Stacked vertical bar
+- [ ] Stacked horizontal bar
+- [ ] Square area
+- [ ] Heatmap
+- [ ] Table?
 - [ ] Have easy settings (themes?) for scaling for projectors, Jupyter, etc
 - [ ] Support drawing text in the middle of lines

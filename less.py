@@ -8,6 +8,7 @@ sys.path.append("/Users/coreygirard/Documents/GitHub/telescope")
 import telescope
 
 import handle_axes as axes
+import handle_elements as elements
 
 
 class Theme(object):
@@ -21,7 +22,7 @@ class Chart(object):
         treepath = '/Users/coreygirard/Documents/GitHub/less/chart.yml'
         self._telescope = telescope.Telescope(treepath,self.handle,k='chart')
 
-        self.stored = {'line':{}}
+        self.stored = {}
 
         self.load_themes()
 
@@ -54,11 +55,15 @@ class Chart(object):
         else:
             print('unknown command:',route,args,kwargs)
 
+    def __getitem__(self,k):
+        e = self.stored[k]
+        return e
+
     def __getattr__(self,k):
         return getattr(self._telescope,k)
 
-    def get_current_theme(self):
-        return self.theme[self.current_theme]
+    def get_current_theme(self, style, typ):
+        return self.theme[self.current_theme][style][typ]
 
     def plot(self,*args,**kwargs):
         self.axes.plot(*args, **kwargs)
@@ -68,6 +73,12 @@ class Chart(object):
 
     def jitter(self, *args, **kwargs):
         self.axes.jitter(*args, **kwargs)
+
+    def vbar(self, *args, **kwargs):
+        self.axes.vbar(*args, **kwargs)
+
+    def hbar(self, *args, **kwargs):
+        self.axes.hbar(*args, **kwargs)
 
     def render(self):
         self.axes.render()
