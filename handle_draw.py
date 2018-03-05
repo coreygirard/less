@@ -62,7 +62,7 @@ class Draw(object):
 
         name = kwargs.pop('name', None)
 
-        bar = self.get_axes().bar(x, y)
+        bar = self.get_axes().bar(x, y, **kwargs)
         self.sync_scales()
 
         if name:
@@ -75,11 +75,15 @@ class Draw(object):
         x = kwargs.pop('x')
 
         if True: #any(map(lambda x: type(x) == str, x)):
-            y = list(reversed(range(len(y))))
+            y = list(range(len(y)))
 
         name = kwargs.pop('name', None)
 
-        bar = self.get_axes().barh(y, x)
+        bar = self.get_axes().barh(y, x, **kwargs)
+
+        ymin, ymax = self.get_axes().get_ylim()
+        self.get_axes().set_ylim(ymax, ymin)
+
         self.sync_scales()
 
         if name:

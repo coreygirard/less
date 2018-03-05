@@ -1,0 +1,32 @@
+{
+    "vertical bar": {
+        "background": {
+            "color": "#A7A7A7"
+        },
+        "highlight": {
+            "color": "#4D81BF"
+        }
+    },
+    "background": {
+        "plot": {
+            "color": "#BBBBBB",
+            "linestyle": "--"
+        },
+        "scatter": {
+            "color": "grey",
+            "s": 3
+        },
+        "spines": {
+            "color": "#999999"
+        },
+        "ticks": {
+            "color": "#999999"
+        }
+    },
+    "highlight": {
+        "scatter": {
+            "c": "r",
+            "s": 9
+        }
+    }
+}
