@@ -6,7 +6,7 @@ import telescope
 
 
 def get_via_x(x, y, xi):
-    if not type(xi) == list:
+    if not isinstance(xi, list):
         xi = [xi]
 
     temp = []
@@ -40,18 +40,18 @@ def get_via_x(x, y, xi):
     return results
 
 def get_via_t(x, y, t):
-    assert(len(x) == len(y))
-    assert(t >= 0 and t <= 1)
+    assert len(x) == len(y)
+    assert t >= 0 and t <= 1
 
     t *= len(x) - 1
     if int(t) == t:
         t = int(t)
         return x[t], y[t]
-    else:
-        below, above = int(t), int(t) + 1
-        w_below, w_above = t-below, above-t
-        return (x[below]*w_below + x[above]*w_above,
-                y[below]*w_below + y[above]*w_above)
+    # else:
+    below, above = int(t), int(t) + 1
+    w_below, w_above = t-below, above-t
+    return (x[below]*w_below + x[above]*w_above,
+            y[below]*w_below + y[above]*w_above)
 
 
 

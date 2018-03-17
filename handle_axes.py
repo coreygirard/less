@@ -52,7 +52,7 @@ class Axes(draw.Draw):
         self.axes['top'].set_xlim(*self.axes['left'].get_xlim())
         self.axes['bottom'].set_xlim(*self.axes['left'].get_xlim())
 
-    def set_axis_label(self,spine,args,kwargs):
+    def set_axis_label(self, spine, args, kwargs):
         if spine == 'left':
             self.axes['left'].set_ylabel(args[0])
         elif spine == 'right':
@@ -69,34 +69,34 @@ class Axes(draw.Draw):
                      self.axes['bottom']]:
 
             params = {}
-            for k in ['left','right','top','bottom']:
+            for k in ['left', 'right', 'top', 'bottom']:
                 params[k] = 'off'
                 params['label'+k] = 'off'
-            axes.tick_params(axis='both',**params)
-            for s in ['top','bottom','left','right']:
+            axes.tick_params(axis='both', **params)
+            for s in ['top', 'bottom', 'left', 'right']:
                 axes.spines[s].set_visible(False)
 
-    def handle(self,route,*args,**kwargs):
-        head,tail = route[0],route[1:]
+    def handle(self, route, *args, **kwargs):
+        head = route.pop(0)
 
         if head == 'spine':
-            self.handle_spine(tail,args,kwargs)
+            self.handle_spine(route, args, kwargs)
         elif head == 'xlim()':
-            self.handle_xlim(tail,args,kwargs)
+            self.handle_xlim(route, args, kwargs)
         elif head == 'ylim()':
-            self.handle_ylim(tail,args,kwargs)
+            self.handle_ylim(route, args, kwargs)
         elif head == 'line':
-            self.handle_line(tail,args,kwargs)
+            self.handle_line(route, args, kwargs)
         elif head == 'title()':
             self.axes['left'].set_title(*args, **kwargs)
         else:
-            print('unknown command:',route,args,kwargs)
+            print('unknown command:', route, args, kwargs)
 
-    def handle_spine(self,route,args,kwargs):
+    def handle_spine(self, route, args, kwargs):
         #assert(len(route) == 2)
-        assert(route[0] in self.spines_lookup.keys())
+        assert route[0] in self.spines_lookup.keys()
 
-        spine,cmd = route[0],route[1:]
+        spine, cmd = route[0], route[1:]
 
         if cmd == ['visible()']:
             assert(args[0] in [True, False])
@@ -104,15 +104,15 @@ class Axes(draw.Draw):
         elif cmd == ['bounds']:
             assert(len(args[0]) == 2)
             self.spines_lookup[spine].set_bounds(*args[0])
-        elif cmd == ['ticks','major()']:
+        elif cmd == ['ticks', 'major()']:
             self.handle_spine_ticks_major(spine, cmd, args, kwargs)
-        elif cmd == ['ticks','minor()']:
+        elif cmd == ['ticks', 'minor()']:
             self.handle_spine_ticks_minor(spine, cmd, args, kwargs)
         #elif cmd == ['label()']:
         #    self.set_axis_label(spine, args, kwargs)
 
     def handle_spine_ticks_major(self, spine, cmd, args, kwargs):
-        labels = kwargs.get('labels',False)
+        labels = kwargs.get('labels', False)
         labelsize = kwargs.get('fontsize', None)
         try:
             n = args[0]
@@ -142,11 +142,11 @@ class Axes(draw.Draw):
     def handle_spine_ticks_minor(self, spine, cmd, args, kwargs):
         self.ticks_lookup[spine](args[0], minor=True)
 
-    def handle_ylim(self,route,args,kwargs):
+    def handle_ylim(self, route, args, kwargs):
         self.axes['left'].set_ylim(*args)
         self.sync_scales()
 
-    def handle_xlim(self,route,args,kwargs):
+    def handle_xlim(self, route, args, kwargs):
         self.axes['left'].set_xlim(*args)
         self.sync_scales()
 

@@ -11,7 +11,7 @@ class Draw(object):
         return self.parent.axes.axes['left']
 
     def plot(self, *args, **kwargs):
-        assert(len(args) == 0)
+        assert len(args) == 0
 
         style = kwargs.pop('style', 'background')
         theme = self.parent.get_current_theme(style, 'plot')
@@ -34,7 +34,7 @@ class Draw(object):
         style = kwargs.get('style', 'background')
 
         theme = self.parent.get_current_theme(style, 'scatter')
-        self.get_axes().scatter(x,y,**theme)
+        self.get_axes().scatter(x, y, **theme)
         self.sync_scales()
 
     def jitter(self, *args, **kwargs):

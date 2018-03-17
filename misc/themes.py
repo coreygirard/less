@@ -27,8 +27,8 @@ default = {
 import json
 from pprint import pprint
 
-with open('default_theme.json','w') as f:
-    json.dump(default,f,indent=4,sort_keys=True)
+with open('default_theme.json', 'w') as f:
+    json.dump(default, f, indent=4, sort_keys=True)
 
 '''
 for line in json.dumps(default,

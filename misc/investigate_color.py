@@ -10,13 +10,13 @@ with open('colors.json', 'r') as f:
 
 
 def convert(h):
-    return int(h[1:3],16),int(h[3:5],16),int(h[5:7],16)
+    return int(h[1:3],16), int(h[3:5],16), int(h[5:7],16)
 
-with open('colors.json','r') as f:
+with open('colors.json', 'r') as f:
     data = json.load(f)
 
 def tweak_axes(ax):
-    ticks = range(0,256+1,64)
+    ticks = range(0, 256+1, 64)
 
     ax.set_aspect('equal', 'box')
     ax.spines['right'].set_visible(False)
@@ -62,7 +62,7 @@ def plot_data(data, ax1, ax2, ax3, linecolor, alpha):
     '''
 
 
-plt.rcParams["figure.figsize"] = [15,5]
+plt.rcParams["figure.figsize"] = [15, 5]
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
 
 for color in list(data.keys()) + ['red']:
@@ -74,7 +74,7 @@ for color in list(data.keys()) + ['red']:
     d = sorted([(k, v, convert(v)) for k,v in data[color].items() if len(k) == 3])
 
     if color == 'red':
-        linecolor, alpha = 'orange', 1.0
+        linecolor, alpha = 'red', 1.0
     else:
         linecolor, alpha = 'k', 0.2
 

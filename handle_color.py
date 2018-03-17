@@ -36,6 +36,6 @@ def parse(color):
     if re.fullmatch(hex_six, color):
         return color
 
-print(parse('#abc'))
-print(parse('#01f5ab'))
-print(parse('light-blue-700'))
+#print(parse('#abc'))
+#print(parse('#01f5ab'))
+#print(parse('light-blue-700'))

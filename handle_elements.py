@@ -28,13 +28,13 @@ class LineObject(object):
         if end == 'left':
             if x1 > x2:
                 return x2-fudge, y2
-            else:
-                return x1-fudge, y1
+            # else:
+            return x1-fudge, y1
         elif end == 'right':
             if x1 > x2:
                 return x1+fudge, y1
-            else:
-                return x2+fudge, y2
+            # else:
+            return x2+fudge, y2
 
     def get_alignments(self, end):
         if end == 'left':
