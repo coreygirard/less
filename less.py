@@ -42,8 +42,8 @@ class Chart(object):
             self.current_theme = sorted(list(self.theme.keys()))[0]
 
     def handle(self, route):
-        route = self.theme_handler.apply(route)
-        route = self.color_handler.apply(route)
+        #route = self.theme_handler.apply(route)
+        #route = self.color_handler.apply(route)
         return self.axes.handle(route)
 
     def __getitem__(self, k):
@@ -54,7 +54,7 @@ class Chart(object):
         return getattr(self._telescope, k)
 
     def get_current_theme(self, style, typ):
-        return self.theme[self.current_theme][style][typ]
+        return self.theme[self.current_theme][typ][style]
 
     def render(self):
         self.axes.render()

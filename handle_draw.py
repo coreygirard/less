@@ -45,7 +45,10 @@ class Draw(object):
         x = kwargs.pop('x')
         y = kwargs.pop('y')
 
-        x_ = x + np.random.random(x.shape)*x_width - (x_width/2) if x_width else x
+        if x_width:
+            x_ = x + np.random.random(x.shape)*x_width - (x_width/2)
+        else:
+            x_ = x
 
         if y_width:
             y_ = y + np.random.random(y.shape)*y_width - (y_width/2)

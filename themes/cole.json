@@ -7,26 +7,30 @@
             "color": "#4D81BF"
         }
     },
-    "background": {
-        "plot": {
+    "plot": {
+        "background": {
             "color": "#BBBBBB",
             "linestyle": "--"
-        },
-        "scatter": {
+        }
+    },
+    "scatter": {
+        "background": {
             "color": "grey",
             "s": 3
         },
-        "spines": {
-            "color": "#999999"
-        },
-        "ticks": {
+        "highlight": {
+            "c": "r",
+            "s": 9
+        }
+    },
+    "spines": {
+        "background": {
             "color": "#999999"
         }
     },
-    "highlight": {
-        "scatter": {
-            "c": "r",
-            "s": 9
+    "ticks": {
+        "background": {
+            "color": "#999999"
         }
     }
 }
