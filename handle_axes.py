@@ -5,7 +5,7 @@ class Axes(draw.Draw):
     def __init__(self, x, y, parent):
         self.parent = parent
 
-        self.fig = plt.figure(figsize=(x,y))
+        self.fig = plt.figure(figsize=(x, y))
 
         self.create_axes()
         self.init_ticks_position()
@@ -46,7 +46,6 @@ class Axes(draw.Draw):
                               'top':self.axes['top'].set_xticklabels,
                               'bottom':self.axes['bottom'].set_xticklabels}
 
-
     def sync_scales(self):
         self.axes['right'].set_ylim(*self.axes['left'].get_ylim())
         self.axes['top'].set_xlim(*self.axes['left'].get_xlim())
@@ -76,78 +75,84 @@ class Axes(draw.Draw):
             for s in ['top', 'bottom', 'left', 'right']:
                 axes.spines[s].set_visible(False)
 
-    def handle(self, route, *args, **kwargs):
+    def handle(self, route):
         head = route.pop(0)
 
-        if head == 'spine':
-            self.handle_spine(route, args, kwargs)
-        elif head == 'xlim()':
-            self.handle_xlim(route, args, kwargs)
-        elif head == 'ylim()':
-            self.handle_ylim(route, args, kwargs)
-        elif head == 'line':
-            self.handle_line(route, args, kwargs)
-        elif head == 'title()':
-            self.axes['left'].set_title(*args, **kwargs)
+        if head.val == 'spine' and head.type == 'attr':
+            self.handle_spine(route)
+        elif head.val == 'xlim' and head.type == '()':
+            self.handle_xlim(head.args)
+        elif head.val == 'ylim' and head.type == '()':
+            self.handle_ylim(head.args)
+        elif head.val == 'line' and head.type == '[]':
+            self.handle_line(route)
+        elif head.val == 'title' and head.type == '()':
+            self.axes['left'].set_title(*head.args, **head.kwargs)
         else:
-            print('unknown command:', route, args, kwargs)
+            print('unknown command:', head, route)
 
-    def handle_spine(self, route, args, kwargs):
-        #assert(len(route) == 2)
-        assert route[0] in self.spines_lookup.keys()
+    def handle_spine(self, route):
+        spine = route.pop(0).val
+        assert spine in self.spines_lookup.keys()
 
-        spine, cmd = route[0], route[1:]
+        cmd = route[0].val
 
-        if cmd == ['visible()']:
-            assert(args[0] in [True, False])
-            self.spines_lookup[spine].set_visible(args[0])
-        elif cmd == ['bounds']:
-            assert(len(args[0]) == 2)
-            self.spines_lookup[spine].set_bounds(*args[0])
-        elif cmd == ['ticks', 'major()']:
-            self.handle_spine_ticks_major(spine, cmd, args, kwargs)
-        elif cmd == ['ticks', 'minor()']:
-            self.handle_spine_ticks_minor(spine, cmd, args, kwargs)
+        if cmd == 'visible':
+            self.spines_lookup[spine].set_visible(route[0].args[0])
+        elif cmd == 'bounds':
+            self.spines_lookup[spine].set_bounds(*route[0].args[0])
+        elif cmd == 'ticks':
+            self.handle_spine_ticks(spine, route[1])
         #elif cmd == ['label()']:
         #    self.set_axis_label(spine, args, kwargs)
 
-    def handle_spine_ticks_major(self, spine, cmd, args, kwargs):
-        labels = kwargs.get('labels', False)
-        labelsize = kwargs.get('fontsize', None)
+    def handle_spine_ticks(self, spine, cmd):
+        if cmd.val == 'major':
+            self.handle_spine_ticks_major(spine, cmd)
+
+        elif cmd.val == 'minor':
+            self.handle_spine_ticks_minor(spine, cmd)
+
+
+    def handle_spine_ticks_major(self, spine, cmd):
+        labels = cmd.kwargs.get('labels',False)
+        labelsize = cmd.kwargs.get('fontsize', None)
         try:
-            n = args[0]
+            n = cmd.args[0]
         except:
             n = list(range(len(labels)))
 
+        # sets the tick locations themselves (iirc)
         self.ticks_lookup[spine](n)
+
+        # sets properties of the ticks
         params = {spine:'on'}
         if labelsize:
             params['labelsize'] = labelsize
         self.axes[spine].tick_params(**params)
 
         if labels == False:
-            self.labels_lookup[spine](args[0])
+            self.labels_lookup[spine](cmd.args[0])
         else:
             assert(type(labels) == list)
             self.labels_lookup[spine](labels)
 
+        # makes sure labels are visible
         self.axes[spine].tick_params(**{'label' + spine:'on'})
 
-
-
-        leave_bounds = kwargs.get('leavebounds', False)
+        leave_bounds = cmd.kwargs.get('leavebounds', False)
         if leave_bounds != True:
             self.spines_lookup[spine].set_bounds(min(n), max(n))
 
-    def handle_spine_ticks_minor(self, spine, cmd, args, kwargs):
-        self.ticks_lookup[spine](args[0], minor=True)
+    def handle_spine_ticks_minor(self, spine, cmd):
+        self.ticks_lookup[spine](cmd.args[0], minor=True)
 
-    def handle_ylim(self, route, args, kwargs):
-        self.axes['left'].set_ylim(*args)
+    def handle_xlim(self, args):
+        self.axes['left'].set_xlim(*args)
         self.sync_scales()
 
-    def handle_xlim(self, route, args, kwargs):
-        self.axes['left'].set_xlim(*args)
+    def handle_ylim(self, args):
+        self.axes['left'].set_ylim(*args)
         self.sync_scales()
 
     '''

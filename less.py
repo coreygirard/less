@@ -10,11 +10,13 @@ import telescope
 
 import handle_axes as axes
 import handle_elements as elements
+import handle_themes as themes
+import handle_colors as colors
 
 
-class Theme(object):
-    def __init__(self, data):
-        self.data = data
+#class Theme(object):
+#    def __init__(self, data):
+#        self.data = data
 
 treepath = '/Users/coreygirard/Documents/GitHub/less/chart.yml'
 class Chart(object):
@@ -24,8 +26,10 @@ class Chart(object):
         self._telescope = telescope.Telescope(treepath, self.handle, k='chart')
 
         self.stored = {}
-
         self.load_themes()
+
+        self.theme_handler = themes.ThemesHandler()
+        self.color_handler = colors.ColorsHandler()
 
     def load_themes(self):
         my_path = os.path.dirname(os.path.realpath(__file__))
@@ -43,13 +47,8 @@ class Chart(object):
             self.current_theme = sorted(list(self.theme.keys()))[0]
 
 
-    def handle(self, route, *args, **kwargs):
-        temp = []
-        for r in route:
-            temp += list(r)
-        route = (''.join(temp))[1:].split('.')
-
-        self.axes.handle(route, *args, **kwargs)
+    def handle(self, route):
+        return self.axes.handle(route)
 
     def __getitem__(self, k):
         e = self.stored[k]
@@ -61,7 +60,6 @@ class Chart(object):
     def get_current_theme(self, style, typ):
         return self.theme[self.current_theme][style][typ]
 
-    '''
     def plot(self, *args, **kwargs):
         self.axes.plot(*args, **kwargs)
 
@@ -76,7 +74,6 @@ class Chart(object):
 
     def hbar(self, *args, **kwargs):
         self.axes.hbar(*args, **kwargs)
-    '''
 
     def render(self):
         self.axes.render()
