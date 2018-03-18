@@ -1,6 +1,9 @@
 chart
     .plot()
     .scatter()
+    .jitter()
+    .vbar()
+    .hbar()
     .xlim()
     .ylim()
     .line[]

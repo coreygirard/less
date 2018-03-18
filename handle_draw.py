@@ -11,6 +11,7 @@ class Draw(object):
         return self.parent.axes.axes['left']
 
     def plot(self, *args, **kwargs):
+        # require x and y as kwargs
         assert len(args) == 0
 
         style = kwargs.pop('style', 'background')

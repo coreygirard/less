@@ -1,5 +1,5 @@
 **Docs** <br>
-Look into using Slate / Read The Docs
+Look into using Slate / Read The Docs?
 - Specifications [Markdown]
   - list of all functions, with arguments, etc
 - Quickstarts [Markdown with embedded images]
@@ -7,6 +7,22 @@ Look into using Slate / Read The Docs
 - Gallery [Markdown with embedded images]
   - Eyecandy
   - Another Markdown file that includes related code for chart, linked to from each Gallery image
+- "_**less**_ for Matplotlib users"
+  - List of function args, and correspondence to Matplotlib args
+
+**Background section shading**
+- Specify area and color
+- If no x bounds specified, goes to axes limits
+- Likewise for y
+
+```python
+chart.background(xlim=(2, 5), ylim=(-1, 1), color='grey-100')
+chart.background(xlim=(2, 5), color='#ddd')
+chart.background(ylim=(-1, 1), color='#eeeeee')
+chart.background(xmin=2)
+chart.background(xlim=(2, 5), ymin=0)
+chart.background(color='black')
+```
 
 **Saving images**
   - Support different formats
@@ -15,16 +31,19 @@ Look into using Slate / Read The Docs
   - Maybe can set chart size in pixels at init?
 
 **New Charts**
-  - Vertical+horizontal bar
-  - Vertical+horizontal stacked bar
-  - Waterfall
-  - Square area
-  - Slopegraph
-  - Heatmap?
-  - Table?
-  - Sparklines
-  - Histograms
-  - Maybe rectangle chart instead of pie chart. No spines, just names and percentages. Stacked vertically, to allow easier labeling
+- Vertical+horizontal bar
+- Vertical+horizontal stacked bar
+- Waterfall
+  - Try horizontal with thin bars? Labels for data points or deltas
+- Square area
+- Slopegraph
+- Heatmap?
+- Table?
+- Sparklines
+- Histograms
+- Cake chart (rectangular version of pie chart)
+  - No spines, just names and percentages
+  - Stacked vertically for easier labeling
 
 **Theme system**
 - Load themes by name
@@ -33,6 +52,13 @@ Look into using Slate / Read The Docs
 - Export theme to JSON
 - Import theme from JSON (optional arg to set theme name)
 - Transform function call kwargs
+
+**Refactor tick/label system**
+- `handle_axes.py : Axes() : handle_spine_ticks_major()`
+- Streamline spaghetti code
+- Preserve functionality for optional labels, bar charts, etc
+- Add ability to control tick/label size
+- Implement same functionality for minor ticks
 
 **Color system**
 - Load colors from JSON
@@ -47,13 +73,17 @@ Look into using Slate / Read The Docs
   - Function that is applied to line points and returns a color
 - Make line sections transparent
 
-**Dependencies [moderate]**
+**Dependencies and pip [moderate]**
 - Deploy *telescope* and *foldr* to PyPI
 
 **Scaling system [moderate]**
 - Default settings for Jupyter and for presentations
 - Perhaps a linear scale that you can choose
 - Auto-scale things like text within bars of charts
+
+**Large pretty text [moderate]**
+- Engine for creating large text graphics
+- Some typesetting geometry required
 
 **Figsize system / subplot system [moderate]**
 - Easily set chart size on init

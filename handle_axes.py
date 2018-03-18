@@ -78,7 +78,14 @@ class Axes(draw.Draw):
     def handle(self, route):
         head = route.pop(0)
 
-        if head.val == 'spine' and head.type == 'attr':
+        if head.val in ['plot',
+                        'scatter',
+                        'jitter',
+                        'vbar',
+                        'hbar']:
+            assert head.type == '()'
+            getattr(self, head.val)(*head.args, **head.kwargs)
+        elif head.val == 'spine' and head.type == 'attr':
             self.handle_spine(route)
         elif head.val == 'xlim' and head.type == '()':
             self.handle_xlim(head.args)
@@ -112,7 +119,6 @@ class Axes(draw.Draw):
 
         elif cmd.val == 'minor':
             self.handle_spine_ticks_minor(spine, cmd)
-
 
     def handle_spine_ticks_major(self, spine, cmd):
         labels = cmd.kwargs.get('labels',False)
