@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import handle_draw as draw
 
-class Axes(draw.Draw):
+class Axes(object):
     def __init__(self, x, y, parent):
         self.parent = parent
 
@@ -46,6 +46,9 @@ class Axes(draw.Draw):
                               'top':self.axes['top'].set_xticklabels,
                               'bottom':self.axes['bottom'].set_xticklabels}
 
+    def get_primary_axes(self):
+        return self.axes['left']
+
     def sync_scales(self):
         self.axes['right'].set_ylim(*self.axes['left'].get_ylim())
         self.axes['top'].set_xlim(*self.axes['left'].get_xlim())
@@ -78,16 +81,7 @@ class Axes(draw.Draw):
     def handle(self, route):
         plaintext = [e.val for e in route]
 
-        if plaintext in [['plot'],
-                         ['scatter'],
-                         ['jitter'],
-                         ['vbar'],
-                         ['hbar']]:
-            cmd = route[0]
-            assert cmd.type == '()'
-            getattr(self, cmd.val)(*cmd.args, **cmd.kwargs)
-
-        elif plaintext[:1] + plaintext[2:] == ['spine', 'visible']:
+        if plaintext[:1] + plaintext[2:] == ['spine', 'visible']:
             spine, args = route[1].val, route[2].args
             assert spine in self.spines_lookup.keys()
             self.handle_spine_visible(spine, *args)

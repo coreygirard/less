@@ -11,6 +11,7 @@ import handle_axes as axes
 import handle_elements as elements
 import handle_themes as themes
 import handle_colors as colors
+import handle_draw as draw
 
 
 treepath = '/Users/coreygirard/Documents/GitHub/less/chart.yml'
@@ -22,8 +23,10 @@ class Chart(object):
 
         self.stored = {}
         self.load_themes()
+        self.themes = themes.ThemesHandler()
 
-        self.theme_handler = themes.ThemesHandler()
+
+        #self.theme_handler = themes.ThemesHandler()
         self.color_handler = colors.ColorsHandler()
 
     def load_themes(self):
@@ -41,10 +44,24 @@ class Chart(object):
             assert len(self.theme.keys()) > 0
             self.current_theme = sorted(list(self.theme.keys()))[0]
 
+    def handle_draw(self, mode, *args, **kwargs):
+        args, kwargs = self.themes.apply(args, kwargs)
+        # TODO: handle color substitution here
+        obj = getattr(draw, mode)(self.axes, *args, **kwargs)
+
+
     def handle(self, route):
-        #route = self.theme_handler.apply(route)
-        #route = self.color_handler.apply(route)
-        return self.axes.handle(route)
+        plaintext = [e.val for e in route]
+        if plaintext in [['plot'],
+                         ['scatter'],
+                         ['jitter'],
+                         ['vbar'],
+                         ['hbar']]:
+            cmd = route[0]
+            assert cmd.type == '()'
+            self.handle_draw(cmd.val, *cmd.args, **cmd.kwargs)
+        else:
+            return self.axes.handle(route)
 
     def __getitem__(self, k):
         e = self.stored[k]
