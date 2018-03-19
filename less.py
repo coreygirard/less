@@ -49,7 +49,6 @@ class Chart(object):
         # TODO: handle color substitution here
         obj = getattr(draw, mode)(self.axes, *args, **kwargs)
 
-
     def handle(self, route):
         plaintext = [e.val for e in route]
         if plaintext in [['plot'],
