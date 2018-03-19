@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import handle_draw as draw
+
 
 class Axes(object):
     def __init__(self, x, y, parent):
