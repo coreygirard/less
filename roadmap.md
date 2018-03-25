@@ -99,3 +99,6 @@ chart.background(color='black')
   - Adding labels to existing lines, with default color matching the line
   - Dropping vertical lines from existing points
   - Adding labels to the middle of lines, and erasing that section of line
+
+**Choropleth maps**
+- Use the `viz.plot_choropleth` functionality from class to allow easy generation of maps from shapefiles

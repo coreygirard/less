@@ -138,3 +138,30 @@ def hbar(ax, *args, **kwargs):
     #    if name not in self.parent.stored.keys():
     #        self.parent.stored[name] = elements.Iterator()
     #    self.parent.stored[name].add(elements.HorizontalBarChartObject(bar))
+
+def cake(ax, *args, **kwargs):
+    cat = kwargs.get('categories', None)
+    mag = kwargs.get('values', None)
+
+    highlight = kwargs.get('highlight', [])
+
+    width = 1
+
+    highlight_color = '#F79646'
+    background_color = '#bbbbbb'
+    for i in range(len(mag)):
+        bottom = sum(mag[:i]) / sum(mag)
+        height = mag[i] / sum(mag)
+
+        if cat[i] in highlight:
+            color = highlight_color
+        else:
+            color = background_color
+
+        bar = ax.get_primary_axes().bar(0, height, bottom=bottom, width=width, color=color)
+        for p in bar.patches:
+            # sets outline to same color as background. Hackjob for transparency
+            p.set_edgecolor(ax.get_primary_axes().get_facecolor())
+            p.set_linewidth(3)
+
+        #plt.text(0, bottom+height/2, cat[i], ha='center', va='center', color='white', fontsize=16)

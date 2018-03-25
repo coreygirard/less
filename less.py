@@ -55,7 +55,8 @@ class Chart(object):
                          ['scatter'],
                          ['jitter'],
                          ['vbar'],
-                         ['hbar']]:
+                         ['hbar'],
+                         ['cake']]:
             cmd = route[0]
             assert cmd.type == '()'
             self.handle_draw(cmd.val, *cmd.args, **cmd.kwargs)

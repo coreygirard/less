@@ -4,6 +4,8 @@ chart
     .jitter()
     .vbar()
     .hbar()
+    .cake()
+
     .xlim()
     .ylim()
     .line[]
