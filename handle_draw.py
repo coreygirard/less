@@ -147,21 +147,76 @@ def cake(ax, *args, **kwargs):
 
     width = 1
 
-    highlight_color = '#F79646'
-    background_color = '#bbbbbb'
+    #highlight_color = '#F79646'
+    #background_color = '#bbbbbb'
     for i in range(len(mag)):
         bottom = sum(mag[:i]) / sum(mag)
         height = mag[i] / sum(mag)
 
         if cat[i] in highlight:
-            color = highlight_color
+            color = kwargs.get('color') #highlight_color
         else:
-            color = background_color
+            color = kwargs.get('color') #background_color
 
         bar = ax.get_primary_axes().bar(0, height, bottom=bottom, width=width, color=color)
         for p in bar.patches:
             # sets outline to same color as background. Hackjob for transparency
             p.set_edgecolor(ax.get_primary_axes().get_facecolor())
-            p.set_linewidth(3)
+            p.set_linewidth(kwargs.get('linewidth'))
 
         #plt.text(0, bottom+height/2, cat[i], ha='center', va='center', color='white', fontsize=16)
+
+def background(ax, *args, **kwargs):
+    print('background', ax, args, kwargs)
+
+    color = kwargs.pop('color', None)
+    alpha = kwargs.pop('alpha', None)
+
+    ax = ax.get_primary_axes()
+
+    if 'xlim' in kwargs.keys():
+        xmin, xmax = kwargs['xlim']
+    else:
+        xmin = kwargs.get('xmin', None) # ax.get_xlim()[0])
+        xmax = kwargs.get('xmax', None) # ax.get_xlim()[1])
+
+    if 'ylim' in kwargs.keys():
+        ymin, ymax = kwargs['ylim']
+    else:
+        ymin = kwargs.get('ymin', None) # ax.get_ylim()[0])
+        ymax = kwargs.get('ymax', None) # ax.get_ylim()[1])
+
+    print(xmin, xmax, ymin, ymax)
+    if ymin is None and ymax is None:
+        if not xmin is None and not xmax is None:
+            ax.axvspan(xmin=xmin, xmax=xmax, facecolor=color, alpha=alpha)
+    if xmin is None and xmax is None:
+        if not ymin is None and not ymax is None:
+            ax.axhspan(ymin=ymin, ymax=ymax, facecolor=color, alpha=alpha)
+
+
+    '''
+    xlim = kwargs.pop('xlim', None)
+    if xlim:
+        ax.axvspan(*xlim, facecolor=color, alpha=0.5)
+
+    ylim = kwargs.pop('ylim', None)
+    if ylim:
+        ax.axhspan(*ylim, facecolor=color, alpha=0.5)
+
+    xmin = kwargs.pop('xmin', None)
+    if xmin:
+        ax.axvspan(xmin=xmin, xmax=, facecolor=color, alpha=0.5)
+
+    xmax = kwargs.pop('xmax', None)
+    if xmax:
+        ax.axvspan(xmin=, xmax=xmax, facecolor=color, alpha=0.5)
+
+    ymin = kwargs.pop('ymin', None)
+    if ymin:
+        ax.axhspan(ymin=ymin, ymax=ax.get_ylim()[1], facecolor=color, alpha=0.5)
+
+    ymax = kwargs.pop('ymax', None)
+    if ymax:
+        ax.axhspan(ymin=ax.get_ylim()[0], ymax=ymax, facecolor=color, alpha=0.5)
+    '''

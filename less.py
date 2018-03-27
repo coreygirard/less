@@ -22,13 +22,14 @@ class Chart(object):
         self._telescope = telescope.Telescope(treepath, self.handle)
 
         self.stored = {}
-        self.load_themes()
+        #self.load_themes()
         self.themes = themes.ThemesHandler()
 
 
         #self.theme_handler = themes.ThemesHandler()
         self.color_handler = colors.ColorsHandler()
 
+    '''
     def load_themes(self):
         my_path = os.path.dirname(os.path.realpath(__file__))
         self.theme = {}
@@ -43,9 +44,10 @@ class Chart(object):
         else:
             assert len(self.theme.keys()) > 0
             self.current_theme = sorted(list(self.theme.keys()))[0]
+    '''
 
     def handle_draw(self, mode, *args, **kwargs):
-        args, kwargs = self.themes.apply(args, kwargs)
+        args, kwargs = self.themes.apply(mode, args, kwargs)
         # TODO: handle color substitution here
         obj = getattr(draw, mode)(self.axes, *args, **kwargs)
 
@@ -56,7 +58,8 @@ class Chart(object):
                          ['jitter'],
                          ['vbar'],
                          ['hbar'],
-                         ['cake']]:
+                         ['cake'],
+                         ['background']]:
             cmd = route[0]
             assert cmd.type == '()'
             self.handle_draw(cmd.val, *cmd.args, **cmd.kwargs)

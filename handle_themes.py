@@ -1,12 +1,35 @@
+import json
+
 class ThemesHandler(object):
     def __init__(self):
-        pass
+        with open('./themes/default.json', 'r') as f:
+            self.data = json.load(f)
 
-    def apply_plot(self, args, kwargs):
+        self.data['jitter'] = {**self.data.get('scatter', {}),
+                               **self.data.get('jitter', {})}
+
+        self.default_theme = 'background'
+
+    def apply(self, mode, args, kwargs):
+        style = kwargs.pop('style', self.default_theme)
+
+        theme = self.data.get(mode, {})
+        theme = theme.get(style, {})
+
+        kwargs = {**theme, **kwargs}
+
         return args, kwargs
 
-    #def apply(self, mode, args, kwargs):
-    #    return getattr(self, f'apply_{mode}')(args, kwargs)
 
-    def apply(self, args, kwargs):
-        return args, kwargs
+
+'''
+th = ThemesHandler()
+
+def f(*args, **kwargs):
+    mode = 'scatter'
+
+    args, kwargs = th.apply(mode, args, kwargs)
+    print(args, kwargs)
+
+f(style='highlight')
+'''

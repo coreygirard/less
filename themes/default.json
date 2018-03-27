@@ -5,6 +5,22 @@
             "linestyle": "--"
         }
     },
+    "hbar": {
+        "background": {
+            "color": "#BBBBBB"
+        }
+    },
+    "vbar": {
+        "background": {
+            "color": "#BBBBBB"
+        }
+    },
+    "cake": {
+        "background": {
+            "color": "#BBBBBB",
+            "linewidth": 5
+        }
+    },
     "scatter": {
         "background": {
             "color": "grey",
