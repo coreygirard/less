@@ -174,25 +174,49 @@ def background(ax, *args, **kwargs):
 
     ax = ax.get_primary_axes()
 
+    contains_x = any(['xlim' in kwargs.keys(),
+                      'xmin' in kwargs.keys(),
+                      'xmax' in kwargs.keys()])
+    contains_y = any(['ylim' in kwargs.keys(),
+                      'ymin' in kwargs.keys(),
+                      'ymax' in kwargs.keys()])
+
+    assert not (contains_x and contains_y)
+
     if 'xlim' in kwargs.keys():
         xmin, xmax = kwargs['xlim']
     else:
-        xmin = kwargs.get('xmin', None) # ax.get_xlim()[0])
-        xmax = kwargs.get('xmax', None) # ax.get_xlim()[1])
+        xmin = kwargs.get('xmin', ax.get_xlim()[0])
+        xmax = kwargs.get('xmax', ax.get_xlim()[1])
 
     if 'ylim' in kwargs.keys():
         ymin, ymax = kwargs['ylim']
     else:
-        ymin = kwargs.get('ymin', None) # ax.get_ylim()[0])
-        ymax = kwargs.get('ymax', None) # ax.get_ylim()[1])
+        ymin = kwargs.get('ymin', ax.get_ylim()[0])
+        ymax = kwargs.get('ymax', ax.get_ylim()[1])
+
+    kw = {'facecolor': color,
+          'alpha': alpha}
+
 
     print(xmin, xmax, ymin, ymax)
-    if ymin is None and ymax is None:
-        if not xmin is None and not xmax is None:
-            ax.axvspan(xmin=xmin, xmax=xmax, facecolor=color, alpha=alpha)
-    if xmin is None and xmax is None:
-        if not ymin is None and not ymax is None:
-            ax.axhspan(ymin=ymin, ymax=ymax, facecolor=color, alpha=alpha)
+    if (ymin is None) and (ymax is None):
+        if not xmin is None:
+            kw['xmin'] = xmin
+        else:
+            kw['xmin'] = ax.get_xlim()[0]
+
+        if not xmax is None:
+            kw['xmax'] = xmin
+        else:
+            kw['xmax'] = ax.get_xlim()[1]
+
+        ax.axvspan(**kw)
+
+    if (xmin is None) and (xmax is None) and \
+       (not ymin is None) and (not ymax is None):
+        ax.axhspan(ymin=ymin, ymax=ymax, facecolor=color, alpha=alpha)
+
 
 
     '''
