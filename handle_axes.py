@@ -33,18 +33,18 @@ class Axes(object):
         self.axes['bottom'].xaxis.set_label_position('bottom')
 
     def init_lookup(self):
-        self.spines_lookup = {'left':self.axes['left'].spines['left'],
-                              'right':self.axes['right'].spines['right'],
-                              'top':self.axes['top'].spines['top'],
-                              'bottom':self.axes['bottom'].spines['bottom']}
-        self.ticks_lookup = {'left':self.axes['left'].set_yticks,
-                             'right':self.axes['right'].set_yticks,
-                             'top':self.axes['top'].set_xticks,
-                             'bottom':self.axes['bottom'].set_xticks}
-        self.labels_lookup = {'left':self.axes['left'].set_yticklabels,
-                              'right':self.axes['right'].set_yticklabels,
-                              'top':self.axes['top'].set_xticklabels,
-                              'bottom':self.axes['bottom'].set_xticklabels}
+        self.spines_lookup = {'left': self.axes['left'].spines['left'],
+                              'right': self.axes['right'].spines['right'],
+                              'top': self.axes['top'].spines['top'],
+                              'bottom': self.axes['bottom'].spines['bottom']}
+        self.ticks_lookup = {'left': self.axes['left'].set_yticks,
+                             'right': self.axes['right'].set_yticks,
+                             'top': self.axes['top'].set_xticks,
+                             'bottom': self.axes['bottom'].set_xticks}
+        self.labels_lookup = {'left': self.axes['left'].set_yticklabels,
+                              'right': self.axes['right'].set_yticklabels,
+                              'top': self.axes['top'].set_xticklabels,
+                              'bottom': self.axes['bottom'].set_xticklabels}
 
     def get_primary_axes(self):
         return self.axes['left']
@@ -144,7 +144,7 @@ class Axes(object):
         self.ticks_lookup[spine](n)
 
         # sets properties of the ticks
-        params = {spine:'on'}
+        params = {spine: 'on'}
         if labelsize:
             params['labelsize'] = labelsize
         self.axes[spine].tick_params(**params)
@@ -152,11 +152,11 @@ class Axes(object):
         if labels == False:
             self.labels_lookup[spine](args[0])
         else:
-            assert(type(labels) == list)
+            assert isinstance(labels, list)
             self.labels_lookup[spine](labels)
 
         # makes sure labels are visible
-        self.axes[spine].tick_params(**{'label' + spine:'on'})
+        self.axes[spine].tick_params(**{'label' + spine: 'on'})
 
         leave_bounds = kwargs.get('leavebounds', False)
         if leave_bounds != True:

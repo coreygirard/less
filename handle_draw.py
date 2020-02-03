@@ -91,21 +91,44 @@ def jitter(ax, *args, **kwargs):
 
     scatter(ax, *args, **kwargs)
 
-def vbar(ax, *args, **kwargs):
-    x = kwargs.pop('x')
-    y = kwargs.pop('y')
+def _bar_get_data(kwargs):
+    categories = kwargs.pop('categories')
+    values = kwargs.pop('values')
 
-    if isinstance(x, list):
-        x = np.array(x)
-    if isinstance(y, list):
-        y = np.array(y)
+    assert isinstance(categories, list)
+    assert isinstance(values, list)
+
+    return categories, values
+
+def _bar_set_borders(bar):
+    for p in bar:
+        #if False: #label in highlight:
+        #    p.set_color('#F79646')
+        #else:
+        #    p.set_color('#E0E0E0')
+
+        p.set_edgecolor('white')
+        p.set_linewidth(3)
+
+def _hbar_convert_to_all_lists(values):
+    output = []
+    for e in values:
+        if isinstance(e, list):
+            output.append(e)
+        else:
+            output.append([e])
+
+    return output
+
+def vbar(ax, *args, **kwargs):
+    categories, values = _bar_get_data(kwargs)
 
     #if any(map(lambda x: type(x) == str, x)):
     #    x = list(range(len(x)))
 
     #name = kwargs.pop('name', None)
 
-    bar = ax.get_primary_axes().bar(x, y, **kwargs)
+    bar = ax.get_primary_axes().bar(categories, values, **kwargs)
     ax.sync_scales()
 
     #if name:
@@ -113,21 +136,36 @@ def vbar(ax, *args, **kwargs):
     #        self.parent.stored[name] = elements.Iterator()
     #    self.parent.stored[name].add(elements.VerticalBarChartObject(bar))
 
+
+
 def hbar(ax, *args, **kwargs):
-    y = kwargs.pop('y')
-    x = kwargs.pop('x')
+    categories, values = _bar_get_data(kwargs)
 
-    if isinstance(x, list):
-        x = np.array(x)
-    if isinstance(y, list):
-        y = np.array(y)
+    start = kwargs.pop('start', None)
+    assert start in ['top', 'bottom', None]
 
-    if any(map(lambda i: isinstance(i, str), x)):
-        y = list(reversed(range(len(y))))
+    if start is None and any(map(lambda i: isinstance(i, str), values)):
+        start = 'bottom'
+
+    if start == 'bottom':
+        categories = list(reversed(range(len(categories))))
+
+    left = np.zeros((len(values),))
+
+    if not isinstance(values[0], list):
+        values = [[i] for i in values]
+
+    for e in zip(*values):
+        print(e)
+        bar = ax.get_primary_axes().barh(categories, e, left=left, **kwargs)
+        left += np.array(e)
+
+        _bar_set_borders(bar)
+
 
     #name = kwargs.pop('name', None)
 
-    bar = ax.get_primary_axes().barh(y, x, **kwargs)
+    #bar = ax.get_primary_axes().barh(categories, values, **kwargs)
 
     #ymin, ymax = self.get_axes().get_ylim()
     #self.get_axes().set_ylim(ymax, ymin)
